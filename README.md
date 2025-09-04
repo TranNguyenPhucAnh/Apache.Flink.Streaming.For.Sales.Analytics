@@ -275,5 +275,13 @@ docker exec -it broker kafka-topics \
   curl -X DELETE http://localhost:9200/category-sales
   curl -X DELETE http://localhost:9200/order-items-raw
   ```
+* (Optional) Reset Kafka offset:
+
+```bash
+docker exec -it broker \
+  kafka-consumer-groups --bootstrap-server localhost:9092 \
+  --group flink-consumer-group \
+  --reset-offsets --to-earliest --all-topics --execute
+```
 
 ---
