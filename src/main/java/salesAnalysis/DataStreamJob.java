@@ -39,7 +39,8 @@ public class DataStreamJob {
                 .setBootstrapServers("localhost:9092")
                 .setTopics("sales-topic")
                 .setGroupId("flink-consumer")
-                .setStartingOffsets(OffsetsInitializer.earliest())
+                //.setStartingOffsets(OffsetsInitializer.earliest())
+                .setStartingOffsets(OffsetsInitializer.latest())   // 🔑 chỉ đọc data mới
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
 
