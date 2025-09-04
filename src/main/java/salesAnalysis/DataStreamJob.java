@@ -116,6 +116,7 @@ public class DataStreamJob {
                     json.put("count", element.getCount());
 
                     indexer.add(Requests.indexRequest()
+                            .id(element.getCategory())
                             .index("category-sales")
                             .source(json));
                 })
