@@ -267,21 +267,28 @@ docker exec -it broker kafka-topics \
 
 ---
 
-## 📝 Notes
+## 📝 Notes (optional)
 
-* (Optional) Reset Elasticsearch index when testing:
+* Delete Elasticsearch indexes:
 
   ```bash
   curl -X DELETE http://localhost:9200/category-sales
   curl -X DELETE http://localhost:9200/order-items-raw
   ```
-* (Optional) Reset Kafka offset:
+* Reset Kafka offset:
 
 ```bash
 docker exec -it broker \
   kafka-consumer-groups --bootstrap-server localhost:9092 \
   --group flink-consumer-group \
   --reset-offsets --to-earliest --all-topics --execute
+```
+
+*  Delete Kafka topic:
+
+```bash
+docker exec -it broker kafka-topics \
+  --delete --topic sales-topic --bootstrap-server localhost:9092
 ```
 
 ---
