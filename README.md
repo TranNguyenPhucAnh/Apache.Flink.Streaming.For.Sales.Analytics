@@ -42,6 +42,7 @@ A Kibana dashboard visualizes both **aggregated sales by category** and **raw sa
 * **IntelliJ IDEA**: For development and running the Flink job
 * **Apache Flink**: Version 2.1.0 ([https://flink.apache.org/downloads/](https://flink.apache.org/downloads/))
 * **Python**: For simulating streaming data to Kafka (`confluent-kafka` package)
+* **Git**: For cloning and controlling versions of code
 
 ---
 
@@ -49,14 +50,20 @@ A Kibana dashboard visualizes both **aggregated sales by category** and **raw sa
 
 ```bash
 # Clone repository
-git clone https://github.com/TranNguyenPhucAnh/Apache-Flink-For-Sales-Analytics-Streaming.git
-cd ApacheFlink-SalesAnalytics
+git clone https://github.com/TranNguyenPhucAnh/Apache.Flink.Streaming.For.Sales.Analytics.git
+cd Apache.Flink.Streaming.For.Sales.Analytics
 
 # Build project
 mvn clean install
 ```
 
 ---
+
+### Python Setup
+
+```bash
+pip3 install confluent-kafka
+```
 
 ### Docker Setup
 
@@ -70,8 +77,10 @@ docker ps
 ```
 
 ### Flink Setup
-
+```bash
+# Navigate to the folder containing downloaded flink
 `./flink-2.1.0/bin/start-cluster.sh`
+```
 
 **Services**:
 
@@ -91,22 +100,31 @@ docker exec -it broker kafka-topics \
   --partitions 1 --replication-factor 1
 ```
 
+**Verify topic**:
+
+```bash
+docker exec -it broker kafka-topics \
+  --bootstrap-server localhost:9092 \
+  --list
+```
+
 ---
 
 ## ▶️ Running the Application
 
-### 1. Simulate Streaming Data
+### 1. Run Flink Job
 
-Install dependency:
+* Open **`src/main/java/salesAnalysis/DataStreamJob.java`** in IntelliJ
+* Run `flink run -c salesAnalysis.DataStreamJob target/SalesAnalysis-1.0-SNAPSHOT.jar`
 
-```bash
-pip install confluent-kafka
-```
+---
+
+### 2. Simulate Streaming Data
 
 Run producer:
 
 ```bash
-python scripts/send_to_kafka.py
+python3 scripts/send_to_kafka.py
 ```
 
 Script (`send_to_kafka.py`):
@@ -127,15 +145,20 @@ with open('Datasets/order_items.csv', 'r') as file:
 
 ---
 
-### 2. Run Flink Job
+### 3. Verify Output
 
-* Open **`src/main/java/salesAnalysis/DataStreamJob.java`** in IntelliJ
-* Run `flink run -c salesAnalysis.DataStreamJob target/SalesAnalysis-1.0-SNAPSHOT.jar`
-* Monitor in **Flink UI**: [http://localhost:8081](http://localhost:8081)
+**Kafka**
 
----
+   ```bash
+   docker exec -it broker kafka-console-consumer \
+     --bootstrap-server localhost:9092 \
+     --topic sales-topic --from-beginning
+   ```
 
-### 3. Verify Elasticsearch Output
+**Flink UI: [http://localhost:8081](http://localhost:8081)**
+
+
+**Elasticsearch**
 
 * **Aggregated by category**
 
@@ -220,8 +243,17 @@ docker exec -it broker kafka-topics \
   --partitions 1 --replication-factor 1
 ```
 
-4. Run producer script `./scripts/send_to_kafka.py`
-5. Show Kafka consumer:
+```bash
+#Verify topic
+docker exec -it broker kafka-topics \
+  --bootstrap-server localhost:9092 \
+  --list
+```
+
+4. Build jar `mvn install package`
+5. Submit jar to Flink `flink run -c salesAnalysis.DataStreamJob target/SalesAnalysis-1.0-SNAPSHOT.jar`
+6. Run producer script `./scripts/send_to_kafka.py`
+7. Show Kafka consumer:
 
    ```bash
    docker exec -it broker kafka-console-consumer \
@@ -229,8 +261,6 @@ docker exec -it broker kafka-topics \
      --topic sales-topic --from-beginning
    ```
    
-6. Build jar `mvn install package`
-7. Submit jar to Flink `flink run -c salesAnalysis.DataStreamJob target/SalesAnalysis-1.0-SNAPSHOT.jar`
 8. Open Flink UI → monitor job
 9. Verify elasticsearch output
 10. Open Kibana → visualize dashboards
